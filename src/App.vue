@@ -26,7 +26,7 @@ watch(() => route.fullPath, () => { menu.value = false })
     <div class="container footer-grid">
       <div class="footer-brand"><RouterLink to="/" :aria-label="`${brand.name} home`"><BrandMark/></RouterLink><p>Keep your commitments.<br>Let the schedule do the rest.</p><span class="network-tag"><span class="status-dot"/> Robinhood Chain Testnet</span></div>
       <div><h3>Make it happen</h3><RouterLink to="/create">Create a schedule <ArrowUpRight :size="13"/></RouterLink><RouterLink to="/locks">Your workspace</RouterLink><RouterLink to="/#products">Explore the protocol</RouterLink></div>
-      <div><h3>Get acquainted</h3><RouterLink to="/docs">Documentation</RouterLink><a href="/documents/business-plan.md" download>Business plan <ArrowUpRight :size="13"/></a><RouterLink to="/#faq">Common questions</RouterLink></div>
+      <div><h3>Get acquainted</h3><RouterLink to="/docs">Documentation</RouterLink><a href="/documents/business-plan.pdf" download>Business plan <ArrowUpRight :size="13"/></a><RouterLink to="/#faq">Common questions</RouterLink></div>
       <div><h3>Out in the open</h3><a :href="network.explorer" target="_blank" rel="noopener noreferrer">Chain explorer <ArrowUpRight :size="13"/></a><a :href="network.faucet" target="_blank" rel="noopener noreferrer">Testnet faucet <ArrowUpRight :size="13"/></a><a href="/documents/brand-kit.zip" download>Brand kit <ArrowUpRight :size="13"/></a></div>
     </div>
     <div class="container footer-bottom"><span>© {{ new Date().getFullYear() }} {{ brand.name }}. Built for the long run.</span><span>Independent project. Not affiliated with Robinhood.</span><RouterLink to="/legal">Terms & privacy</RouterLink></div>

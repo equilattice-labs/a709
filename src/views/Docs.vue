@@ -117,7 +117,7 @@ const explorerContract = address => `${network.explorer}/address/${address}?tab=
             <a class="download-card" href="/documents/contracts.md" download><span>Contract guide & addresses</span><Download :size="17" /></a>
             <a class="download-card" href="/documents/TokenSchedules.sol" download><span>Scheduler source · Solidity</span><Download :size="17" /></a>
             <a class="download-card" href="/documents/MockUSD.sol" download><span>Test-token source · Solidity</span><Download :size="17" /></a>
-            <a class="download-card" href="/documents/business-plan.md" download><span>Business plan</span><Download :size="17" /></a>
+            <a class="download-card" href="/documents/business-plan.pdf" download><span>Business plan ? PDF</span><Download :size="17" /></a>
             <a class="download-card" href="/documents/brand-kit.zip" download><span>{{ brand.name }} brand kit</span><Download :size="17" /></a>
             <RouterLink class="download-card" to="/#faq"><span>Common questions</span><ArrowUpRight :size="17" /></RouterLink>
           </div>
