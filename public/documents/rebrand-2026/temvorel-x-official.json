@@ -1,0 +1,14 @@
+{
+  "candidate": "temvorel",
+  "kind": "x-official",
+  "url": "https://api.x.com/i/users/username_available.json?username=temvorel",
+  "checkedAt": "2026-09-17T14:22:02.377772+00:00",
+  "status": 200,
+  "finalUrl": "https://api.x.com/i/users/username_available.json?username=temvorel",
+  "data": {
+    "valid": true,
+    "reason": "available",
+    "msg": "Available!",
+    "desc": "Available!"
+  }
+}

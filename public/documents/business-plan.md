@@ -1,9 +1,9 @@
-# Vestlyr — business and execution plan
+# Temvorel — business and execution plan
 
-**Token commitments, made clear.**  
+**Value, on your terms.**  
 English-language launch plan · 17 September 2026 · Planning currency: USD
 
-Vestlyr is a token release workspace for teams: fund a schedule once, make its terms visible, and let recipients claim according to the contract. Its first implementation targets **Robinhood Chain Testnet, chain ID 46630**, with token vesting, a whole-date lock, a finite payment stream and batch vested distributions. The ambition is to become an operating layer for recurring token allocations across teams, grants and communities—not a token-price speculation business.
+Temvorel is a token release workspace for teams: fund a schedule once, make its terms visible, and let recipients claim according to the contract. Its first implementation targets **Robinhood Chain Testnet, chain ID 46630**, with token vesting, a whole-date lock, a finite payment stream and batch vested distributions. The ambition is to become an operating layer for recurring token allocations across teams, grants and communities—not a token-price speculation business.
 
 This document separates the current testnet product from commercial hypotheses. **There are no asserted customers, revenue, external audits, partnerships, investor commitments or acquired domain/social accounts.** Financial figures are scenario assumptions to be tested, not forecasts of returns. Live research and dated sources are in [research.md](research.md).
 
@@ -31,7 +31,7 @@ The promise: **“Turn a token allocation into a funded schedule your recipient 
 
 1. **Understand and simulate.** An English website explains the four release shapes and lets a visitor preview an illustrative schedule before connecting a wallet.
 2. **Connect and select network.** An EVM wallet connects; transaction actions require Robinhood Chain Testnet. The user sees the connected address and network.
-3. **Prepare.** The operator supplies token, amount, recipient and dates. The interface checks addresses, integer token units, date order and batch totals. It shows the cancellation rule and release preview before signing.
+3. **Prepare.** The operator supplies token, amount, recipient, dates and any cliff allocation. The interface checks addresses, integer token units, date order, cliff amounts and batch totals. It shows the cancellation rule and release preview before signing.
 4. **Approve and fund.** A token approval permits the escrow contract to transfer the intended amount. Creation deposits the allocation into the contract. Approval and creation may be separate wallet transactions; “fund once” does not imply every first use takes one signature.
 5. **Inspect and claim.** The sender and recipient inspect their schedules; the recipient claims the currently released amount and receives an explorer-linked receipt. An unavailable RPC or failed transaction must be visible rather than presented as success.
 6. **Return and reconcile.** A later claim or new campaign brings the operator and recipient back. Current onchain state remains the source of truth.
@@ -40,14 +40,16 @@ The promise: **“Turn a token allocation into a funded schedule your recipient 
 
 | Mode | Rule | Example | Boundary |
 | --- | --- | --- | --- |
-| Vesting | Amount accrues over a start/end interval; a cliff gates access; configured cadence may make availability stepwise. | A contributor allocation over 12 months with a 3-month cliff. | The cliff unlocks the amount accrued from the start, not an independent cliff lump sum. |
+| Vesting | A configured cliff allocation unlocks at the cliff; the remaining allocation accrues from the cliff to the end at the chosen cadence. | A contributor allocation with an explicit initial release at a 3-month cliff and a scheduled remainder. | Nothing accrues before the cliff. The cliff allocation is separate from the post-cliff release and can be zero. |
 | Whole-date lock | Nothing releases until the selected unlock timestamp, then the full balance is available. | A treasury allocation with a fixed release date. | The lock does not guarantee the token's value or underlying asset safety. |
-| Payment stream | A fully funded finite allocation accrues with time. | A fixed 30-day grant or retainer denominated in a supported token. | This is claimable accrual, not automatic per-second wallet transfers or an open-ended salary account. |
-| Vested distribution | Multiple recipients receive separate funded schedules under shared timing. | A community contributor cohort. | This MVP uses a bounded batch, not a million-address Merkle campaign. Exact batch limits come from the shipped interface/contract. |
+| Payment stream | A fully funded finite allocation accrues by the second from its start, with no cliff lump sum. | A fixed 30-day grant or retainer denominated in a supported token. | This is claimable accrual, not automatic per-second wallet transfers or an open-ended salary account. |
+| Vested distribution | Multiple recipients receive separate funded schedules under shared timing, with individual cliff amounts. | A community contributor cohort. | This MVP uses a bounded batch of up to 100 allocations, not a million-address Merkle campaign. |
 
 ### Rules that remain consistent everywhere
 
-An optional cancellation flag means **creator cancellation before the schedule starts only**. Once started, a creator cannot claw back the unvested remainder. A noncancelable schedule cannot be canceled even before the start. This rule differs from revocable employment vesting and must appear prominently during setup.
+An optional cancellation flag permits **creator cancellation before or during a schedule**. Cancellation freezes the amount vested at that transaction's block time and immediately refunds only the unvested amount to the original sender. The recipient retains the vested amount minus previous claims and can claim it later; those earned rights are not clawed back. Before the cliff, no amount is vested, so cancellation refunds the full deposit. A noncancelable schedule cannot be canceled. This choice and its effect on future releases must appear prominently during setup.
+
+A cliff allocation is explicit: for 1,200 tokens, a 300-token cliff allocation unlocks 300 at the cliff; the remaining 900 accrue afterward. With nine days from cliff to end and a daily cadence, 100 more vest per completed day. Cadence rounds elapsed time down from the cliff, and the end releases all remaining rounding dust. A recipient can transfer the remaining entitlement, including an unclaimed vested balance after cancellation, to a different wallet without changing its value or timing.
 
 Schedules use integer token amounts and blockchain timestamps. A final release must settle the full allocation without leaving rounding dust beyond supported token behavior. Tokens should behave as ordinary ERC-20s; fee-on-transfer, rebasing, malicious or externally frozen tokens require separate treatment and are not promised as supported merely because they expose ERC-20 functions.
 
@@ -63,15 +65,15 @@ A cancellation at subscription end stops paid services; it never cancels, captur
 
 ## 3. Why Robinhood Chain, and what it does not imply
 
-Robinhood's official docs describe an Ethereum-compatible L2, ETH gas and mainstream developer tooling. They list **mainnet chain 4663 and testnet chain 46630**; therefore this plan does not assume Robinhood Chain mainnet is unlaunched. Vestlyr's own release stays on testnet until its separate launch gates are met. [Official network configuration](https://docs.robinhood.com/chain/connecting).
+Robinhood's official docs describe an Ethereum-compatible L2, ETH gas and mainstream developer tooling. They list **mainnet chain 4663 and testnet chain 46630**; therefore this plan does not assume Robinhood Chain mainnet is unlaunched. Temvorel's own release stays on testnet until its separate launch gates are met. [Official network configuration](https://docs.robinhood.com/chain/connecting).
 
 A focused chain gives the team a bounded support surface and an identifiable builder community. Familiar EVM tooling permits a later chain expansion with less platform-specific rework. Neither choice establishes an official Robinhood relationship. No logo treatment, copy or pitch should imply affiliation, endorsement or preferred access.
 
-The ecosystem's real-world-asset focus is a **future adjacency**, not permission to distribute every asset. Official Stock Token docs describe tokenized debt securities, jurisdiction restrictions and ERC-8056 display multipliers. Vestlyr's MVP uses ordinary test ERC-20s. Supporting regulated stock tokens would require issuer/compliance review, allowed-transfer analysis, correct raw-token versus underlying-share accounting, and specific legal advice. No stock-token custody, minting, securities sale or investment service is part of the initial offer. [Official Stock Token overview](https://docs.robinhood.com/chain/stock-tokens).
+The ecosystem's real-world-asset focus is a **future adjacency**, not permission to distribute every asset. Official Stock Token docs describe tokenized debt securities, jurisdiction restrictions and ERC-8056 display multipliers. Temvorel's MVP uses ordinary test ERC-20s. Supporting regulated stock tokens would require issuer/compliance review, allowed-transfer analysis, correct raw-token versus underlying-share accounting, and specific legal advice. No stock-token custody, minting, securities sale or investment service is part of the initial offer. [Official Stock Token overview](https://docs.robinhood.com/chain/stock-tokens).
 
 ## 4. Competition and a realistic advantage
 
-| Alternative | Existing strength, based on current public material | Vestlyr's proposed response |
+| Alternative | Existing strength, based on current public material | Temvorel's proposed response |
 | --- | --- | --- |
 | Sablier | Mature multi-chain vesting, airdrops and payment tooling; established security work and distribution. | Compete on a focused operator workflow and clarity for a chosen segment, not breadth or maturity. |
 | Hedgey | Token operations, vesting, investor/employee portals and free core tools. | Prove measurable reconciliation and support savings before asking for a subscription. |
@@ -244,7 +246,7 @@ Report weekly product/funnel cohorts and monthly cash/retention. Publish a metri
 | Demand failure | Operators use free tools and will not buy workspace features. | Paid pilot tests, narrow segment, time-saved measurement and explicit stop gates; founder. |
 | Competitive response | Established protocols add the same workspace features. | Faster segment-specific service, integrations and reliability; leadership. Do not assume exclusive contracts. |
 | Legal scope creep | Marketing implies stock ownership, regulated distribution or an official Robinhood partnership. | Clear independent identity, standard-token scope, legal review before restricted assets/markets; commercial lead. |
-| Name availability | Domain or matching X handle cannot be secured. | Dated evidence and registration check before paid brand launch; founder. The current profile check is not a signup guarantee. |
+| Name availability | Domain or matching X handle cannot be secured. | Dated registry evidence and official X username preflight before paid brand launch; founder. A successful preflight is not a reservation or a guarantee of later registration. |
 | Frontend compromise | Malicious UI changes recipients or requests excessive approvals. | Reviewed deploy pipeline, dependency controls, verified contract links and transaction-summary checks; engineering. |
 | Notification/indexer outage | Paid workspace misses a scheduled alert or displays stale accounting. | Event replay, block checkpointing, monitoring and visible sync status; workspace lead. Contract settlement must not depend on notifications. |
 
@@ -252,11 +254,11 @@ Incident procedure: confirm scope, stop promoting new deposits, display a factua
 
 ## 13. Brand, launch package and ownership handoff
 
-The single prepared identity is **Vestlyr / vestlyr.xyz / @vestlyr**, where the matching string is `vestlyr`. The authoritative registry returned no domain object at the check time; X returned no public profile. X signup eligibility, registration and legal exclusivity remain unverified. The original Outrive name was rejected because its `.xyz` domain and X public profile were already registered/present. See [name-availability.md](name-availability.md) for exact evidence and limits.
+The prepared identity is **Temvorel / temvorel.xyz / @temvorel**, pronounced **TEM-vor-el**. Temvorel is a coined name formed from tempo, vow and release: commitments released with a clear rhythm. The exact-name search, registry checks and X username validation are recorded in [name-availability.md](name-availability.md). These are point-in-time observations; no domain purchase, account registration, reservation or trademark clearance is claimed. A public search cannot establish that a string has never existed anywhere online.
 
 The prepared launch package consists of an English Vue site, a distinct logo system, X avatar/banner, English bio and three illustrated JPG posts. Publication requires ownership of the chosen domain/account and a final check that the copy describes the actual deployed product. The root project's delivery manifest records which technical/art assets are present. This plan does not imply the domain is serving the website or the X posts are published.
 
-Recommended short bio: **“Token commitments, made clear. Vesting, locks, streams & vested distributions on Robinhood Chain Testnet. Independent. Test assets only.”**
+Recommended short bio: **“Value, on your terms. Vesting, locks, streams & vested distributions on Robinhood Chain Testnet. Independent. Test tokens only.”**
 
 Initial launch success is ten independent organizations completing and understanding a full testnet workflow, with evidence of repeat need. Mainnet readiness, paid revenue and ecosystem expansion are separate milestones. If those demand and safety gates fail, the rational outcome is a smaller free tool or a halted commercial experiment—not stronger marketing claims.
 
@@ -269,6 +271,6 @@ All web observations checked 17 September 2026:
 - [Sablier product](https://sablier.com/) and [pricing](https://sablier.com/pricing).
 - [Hedgey](https://hedgey.finance/) and [Superfluid](https://www.superfluid.org/).
 - [Lido](https://lido.fi/), [Jupiter](https://jup.ag/) and [Uniswap](https://app.uniswap.org/) for content and interaction research.
-- [Provided reference](https://unlocklexyz.vercel.app/), reviewed as a workflow benchmark, not a security or business claim source for Vestlyr.
+- [Provided reference](https://unlocklexyz.vercel.app/), reviewed as a workflow benchmark, not a security or business claim source for Temvorel.
 
 The market counts, customer mix, prices, funnel rates, cost estimates and financial scenarios are explicitly **internal planning assumptions**. They are not attributed to the sources above.

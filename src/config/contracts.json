@@ -10,28 +10,26 @@
   },
   "faucetUrl": "https://faucet.testnet.chain.robinhood.com",
   "deployed": true,
-  "schedulerAddress": "0x112c566163Cd921B454C1AcABffa5160FAeB2CE3",
+  "schedulerAddress": "0x8F3027eabC68040Cb7aaBCE052be59962Fbf5870",
   "testTokenAddress": "0x5Da8aFB8aa2335538D0777E07a37fc0d6a4019DC",
   "tokenDecimals": 6,
   "tokenSymbol": "tUSD",
   "tokenName": "Vestlyr Test USD",
-  "project": "Vestlyr",
+  "project": "Temvorel",
+  "version": 2,
+  "contractName": "TokenSchedulesV2",
   "deployer": "0x8b3283a9291373069f79508da59001e807bB394F",
-  "deployedAt": "2026-09-17T06:30:08.831Z",
+  "deployedAt": "2026-09-17T07:31:08.324Z",
   "compiler": "0.8.30+commit.73712a01",
   "optimizerRuns": 200,
   "viaIR": true,
   "evmVersion": "shanghai",
+  "legacySchedulerAddress": "0x112c566163Cd921B454C1AcABffa5160FAeB2CE3",
   "transactions": {
-    "TokenSchedules": {
-      "hash": "0x1c4ad9da1ddbd931c420a99bfdab6cff17320121590c133e228a990e5f96ff4e",
-      "blockNumber": 120672700,
-      "gasUsed": "1636836"
-    },
-    "MockUSD": {
-      "hash": "0x8954fc420f1c74c5b99683f5f4055e4b2331f2f10f3aded5f57435ae2999ade5",
-      "blockNumber": 120672729,
-      "gasUsed": "579994"
+    "TokenSchedulesV2": {
+      "hash": "0x4d4647e2f3260f2408c3d89784c0b7c8d6252427d8e9ba9ffe5027bda55bbee9",
+      "blockNumber": 120697011,
+      "gasUsed": "1763524"
     }
   },
   "schedulerAbi": [
@@ -105,6 +103,12 @@
           "internalType": "address",
           "name": "sender",
           "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "vested",
+          "type": "uint256"
         },
         {
           "indexed": false,
@@ -201,6 +205,12 @@
         },
         {
           "indexed": false,
+          "internalType": "uint256",
+          "name": "cliffAmount",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
           "internalType": "uint64",
           "name": "start",
           "type": "uint64"
@@ -242,6 +252,19 @@
     {
       "inputs": [],
       "name": "MAX_BATCH",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "MAX_DURATION",
       "outputs": [
         {
           "internalType": "uint256",
@@ -321,6 +344,11 @@
           "type": "uint256[]"
         },
         {
+          "internalType": "uint256[]",
+          "name": "cliffAmounts",
+          "type": "uint256[]"
+        },
+        {
           "internalType": "uint64",
           "name": "start",
           "type": "uint64"
@@ -372,6 +400,11 @@
         {
           "internalType": "uint256",
           "name": "amount",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "cliffAmount",
           "type": "uint256"
         },
         {
@@ -536,6 +569,45 @@
           "internalType": "bool",
           "name": "cancelled",
           "type": "bool"
+        },
+        {
+          "internalType": "uint256",
+          "name": "cliffAmount",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint64",
+          "name": "cancelledAt",
+          "type": "uint64"
+        },
+        {
+          "internalType": "uint256",
+          "name": "vestedAtCancel",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "refunded",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "name": "totalEscrow",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
         }
       ],
       "stateMutability": "view",

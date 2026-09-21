@@ -1,0 +1,54 @@
+{
+  "brand": "Temvorel",
+  "source_text_preserved": true,
+  "source_sha256": "c9ba45bdb3a56990d61fdd5e05bfe20344bc044c82e0894f216b9d2cc22700c5",
+  "tables": 12,
+  "pdf_pages": 17,
+  "monetary_values_checked": 40,
+  "missing_monetary_values": [],
+  "blank_pages": 0,
+  "post_characters": [
+    217,
+    242,
+    222
+  ],
+  "bio_characters": 127,
+  "social_dimensions": {
+    "01-introducing-temvorel.jpg": [
+      1600,
+      900
+    ],
+    "02-release-map.jpg": [
+      1600,
+      900
+    ],
+    "03-shared-timing.jpg": [
+      1600,
+      900
+    ],
+    "avatar.jpg": [
+      400,
+      400
+    ],
+    "avatar.png": [
+      400,
+      400
+    ],
+    "banner.jpg": [
+      1500,
+      500
+    ]
+  },
+  "public_parity": {
+    "business-plan.md": true,
+    "business-plan.html": true,
+    "business-plan.pdf": true,
+    "contracts.md": true,
+    "research.md": true,
+    "launch-checklist.md": true,
+    "name-availability.md": true
+  },
+  "brand_kit_files": 25,
+  "visual_review": "Social compositions and all PDF pages inspected as contact sheets; no clipped headlines, blank pages, or overlapping table text observed.",
+  "identity_status": "Prepared identity; no registration, reservation or publication performed."
+}

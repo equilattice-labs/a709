@@ -1,0 +1,15 @@
+{
+  "candidate": "temvorel",
+  "kind": "coingecko",
+  "url": "https://api.coingecko.com/api/v3/search?query=temvorel",
+  "checkedAt": "2026-09-17T14:45:45.930515+00:00",
+  "status": 200,
+  "finalUrl": "https://api.coingecko.com/api/v3/search?query=temvorel",
+  "data": {
+    "coins": [],
+    "exchanges": [],
+    "icos": [],
+    "categories": [],
+    "nfts": []
+  }
+}

@@ -1,0 +1,28 @@
+{
+  "brand": "Temvorel",
+  "slug": "temvorel",
+  "pronunciation": "TEM-vor-el",
+  "roots": [
+    "tempo",
+    "vow",
+    "release"
+  ],
+  "meaning": "Token commitments released with a clear rhythm.",
+  "projectTokenTicker": null,
+  "primaryDomain": "temvorel.xyz",
+  "alternativeDomains": [
+    "temvorel.fun",
+    "temvorel.top"
+  ],
+  "intendedWebsite": "https://temvorel.xyz",
+  "xHandle": "@temvorel",
+  "intendedXUrl": "https://x.com/temvorel",
+  "domainStatus": "Registry RDAP and WHOIS report unregistered/available at query time; not purchased or reserved.",
+  "domainWhoisCheckedAtUtc": "2026-09-17T14:47:11.495863+00:00",
+  "xStatus": "Official username endpoint returned valid:true, reason:available, msg:Available!; not registered or reserved.",
+  "xCheckedAtUtc": "2026-09-17T14:45:45.932503+00:00",
+  "originalityStatus": "Independently coined; absent from available prior local brand records. No same-spelling name in inspected quoted/unquoted Bing result titles or snippets; no matches in GitHub repositories/users, npm or CoinGecko. Preliminary screening only; historical internet-wide uniqueness and trademark clearance not established.",
+  "ownershipConfirmed": false,
+  "registeredByThisWork": false,
+  "evidence": "docs/rebrand-2026/name-availability.md"
+}

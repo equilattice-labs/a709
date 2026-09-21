@@ -1,1 +1,6 @@
-export const brand = { name: 'Vestlyr', handle: 'vestlyr', domain: 'vestlyr.xyz', tagline: 'Good things. On schedule.' }
+export const brand = {
+  name: "Temvorel",
+  handle: "temvorel",
+  domain: "temvorel.xyz",
+  tagline: "Value, on your terms.",
+};

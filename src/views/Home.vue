@@ -1,67 +1,364 @@
 <script setup>
-import { ref } from 'vue'
-import { ArrowUpRight, ArrowRight, Plus, Check, ShieldCheck, Timer, LockKeyhole, Waves, Layers3, MoveUpRight } from 'lucide-vue-next'
-import BrandMark from '../components/BrandMark.vue'
-import FlowChart from '../components/FlowChart.vue'
-import { brand } from '../config/brand'
-const activeMode = ref('vesting')
-function tabKey(event) {
-  if (!['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(event.key)) return
-  event.preventDefault()
-  const current = products.findIndex(product => product.id === activeMode.value)
-  const next = event.key === 'Home' ? 0 : event.key === 'End' ? products.length - 1 : (current + (event.key === 'ArrowRight' ? 1 : -1) + products.length) % products.length
-  activeMode.value = products[next].id
-  document.getElementById(`tab-${activeMode.value}`)?.focus()
-}
+import { ref, computed } from "vue";
+import {
+  ArrowUpRight,
+  ArrowRight,
+  Plus,
+  Check,
+  Timer,
+  LockKeyhole,
+  Waves,
+  Layers3,
+  ShieldCheck,
+  MoveRight,
+} from "lucide-vue-next";
+import LiveStats from "../components/LiveStats.vue";
+const activeMode = ref("vesting"),
+  position = ref(60);
 const products = [
-  { id: 'vesting', index: '01', title: 'Grow together.', name: 'Token vesting', icon: Timer, description: 'Give long-term believers a timeline they can believe in. Set a cliff, choose a cadence, and let commitment compound.', tag: 'TEAMS & CONTRIBUTORS', example: 'One team. A shared horizon.' },
-  { id: 'lock', index: '02', title: 'Make time count.', name: 'Token locks', icon: LockKeyhole, description: 'Some things are worth waiting for. Keep tokens locked until one exact date, with the terms visible to everyone.', tag: 'TREASURIES & RESERVES', example: 'Set the date. Keep the promise.' },
-  { id: 'stream', index: '03', title: 'Find your flow.', name: 'Payment streams', icon: Waves, description: 'Work happens every day. Payments can, too. Let a funded balance accrue by the second, ready whenever it’s claimed.', tag: 'PAYROLL & GRANTS', example: 'Good work deserves a steady flow.' },
-  { id: 'airdrop', index: '04', title: 'Bring everyone.', name: 'Vested airdrops', icon: Layers3, description: 'A hundred wallets. One shared timeline. Distribute individual allocations in a single batch and build a community that stays.', tag: 'COMMUNITIES & ECOSYSTEMS', example: 'Many people. One beginning.' },
-]
+  {
+    id: "vesting",
+    name: "Token vesting",
+    short: "Vesting",
+    icon: Timer,
+    tag: "TEAMS & CONTRIBUTORS",
+    description:
+      "Align a team around a shared timeline. Set a cliff and release tokens in measured steps.",
+    label: "A shared horizon",
+    color: "blue",
+  },
+  {
+    id: "lock",
+    name: "Token locks",
+    short: "Lock",
+    icon: LockKeyhole,
+    tag: "TREASURIES & RESERVES",
+    description:
+      "One amount. One date. Keep tokens in escrow until a precise moment in the future.",
+    label: "A date you can count on",
+    color: "orange",
+  },
+  {
+    id: "stream",
+    name: "Payment streams",
+    short: "Stream",
+    icon: Waves,
+    tag: "PAYROLL & GRANTS",
+    description:
+      "Let a funded balance unlock by the second. Recipients claim when they are ready.",
+    label: "A continuous release",
+    color: "violet",
+  },
+  {
+    id: "airdrop",
+    name: "Vested batches",
+    short: "Batch",
+    icon: Layers3,
+    tag: "COMMUNITIES & ECOSYSTEMS",
+    description:
+      "Up to 100 recipients. Individual allocations. One shared schedule, funded in one batch.",
+    label: "One timeline. Many people.",
+    color: "mint",
+  },
+];
+const active = computed(() => products.find((p) => p.id === activeMode.value));
+function releaseAt(p) {
+  return activeMode.value === "lock"
+    ? p >= 80
+      ? 100
+      : 0
+    : activeMode.value === "stream"
+      ? p
+      : p < 20
+        ? 0
+        : Math.min(100, 20 + Math.floor((p - 20) / 10) * 10);
+}
+const released = computed(() => releaseAt(Number(position.value)));
+const chartPoints = computed(() =>
+  Array.from(
+    { length: 101 },
+    (_, i) => `${32 + i * 4.1},${194 - releaseAt(i) * 1.45}`,
+  ).join(" "),
+);
+function tabKey(e) {
+  if (!["ArrowLeft", "ArrowRight", "Home", "End"].includes(e.key)) return;
+  e.preventDefault();
+  const i = products.findIndex((p) => p.id === activeMode.value);
+  const next =
+    e.key === "Home"
+      ? 0
+      : e.key === "End"
+        ? 3
+        : (i + (e.key === "ArrowRight" ? 1 : -1) + 4) % 4;
+  activeMode.value = products[next].id;
+  document.getElementById(`demo-tab-${activeMode.value}`)?.focus();
+}
 const faqs = [
-  ['What is Vestlyr?', 'Vestlyr is a token scheduling protocol on Robinhood Chain Testnet. Create token vesting schedules, date locks, per-second payment streams, or batch distributions. Funds are held by a non-upgradeable smart contract and recipients claim according to its rules.'],
-  ['Who controls the tokens?', 'The contract holds funded tokens. Recipients can claim unlocked amounts, and creators can cancel only before a schedule starts if cancellation was enabled when creating it. There is no administrator withdrawal function. This does not eliminate smart-contract or token risk.'],
-  ['What does it cost?', 'The testnet deployment has no protocol fees. Creation, token approvals and claims require testnet ETH for network gas. Test tokens have no monetary value. Any future paid workspace would be a separate product with its own published pricing.'],
-  ['Can I change a schedule later?', 'Amounts and timing cannot be edited after funding. If enabled, the creator can cancel before the start time and recover the deposit. Once the schedule starts, cancellation is unavailable. Recipients can transfer their claim rights to another wallet.'],
-  ['Is this ready for real funds?', 'This release is a testnet pilot, not an independently audited production release. Use test tokens only. Production availability depends on independent security review, operational readiness, and clear token support.'],
-]
+  [
+    "What happens after I fund a schedule?",
+    "The contract holds the tokens under the terms you approve. Recipients claim the unlocked balance. Streams accrue value; they do not automatically push payments to a wallet.",
+  ],
+  [
+    "Can the terms change?",
+    "Amounts and dates cannot be edited after funding. When cancellation is enabled, the creator can recover the unvested remainder. Vested tokens remain available to the recipient. Recipients may transfer their remaining claim rights.",
+  ],
+  [
+    "What does it cost?",
+    "There are no protocol fees on this testnet deployment. Approvals, funding and claims require testnet ETH for network gas. The demonstration token has no monetary value.",
+  ],
+  [
+    "Can I use real funds?",
+    "This is an unaudited testnet pilot. Use test tokens only. Production use requires independent security review and operational readiness.",
+  ],
+];
 </script>
 <template>
-  <section class="hero">
-    <div class="container hero-grid">
+  <div class="overview-page container">
+    <section class="overview-hero">
       <div class="hero-copy">
-        <div class="hero-eyebrow"><span class="status-dot"/> A NEW CHAPTER FOR ONCHAIN COMMITMENTS</div>
-        <h1>Good things.<br><span>On schedule.</span></h1>
-        <p>From the first believer to the next big milestone.<br class="desktop-break"> Give your tokens a timeline. And your people<br class="desktop-break"> something to count on.</p>
-        <div class="hero-buttons"><RouterLink to="/create" class="button button-lime">Create a schedule <ArrowUpRight :size="18"/></RouterLink><RouterLink to="/#products" class="text-button">Find your flow <ArrowRight :size="17"/></RouterLink></div>
-        <div class="hero-assurance"><span><ShieldCheck :size="15"/> Non-custodial by design</span><span class="tiny-separator"/><span>Built on Robinhood Chain</span></div>
+        <p class="eyebrow">
+          <span class="tiny-square" /> TOKEN DISTRIBUTION, COMPOSED.
+        </p>
+        <h1>Make time<br />part of<br /><span>the plan.</span></h1>
+        <p class="hero-description">
+          A clearer way to move tokens.<br />Set the people, the pace, and the
+          terms.<br />Let the schedule take it from there.
+        </p>
+        <div class="hero-buttons">
+          <RouterLink to="/create" class="button button-primary"
+            >Create a schedule <ArrowUpRight :size="18" /></RouterLink
+          ><a href="#products" class="text-button"
+            >Explore the tools <ArrowRight :size="16"
+          /></a>
+        </div>
+        <div class="hero-footnote">
+          <ShieldCheck :size="15" /><span
+            >Onchain rules. Visible from day one.</span
+          >
+        </div>
       </div>
-      <div class="hero-art">
-        <div class="orbital-guide guide-one"/><div class="orbital-guide guide-two"/>
-        <div class="art-top-label"><span class="mini-cross">+</span> VALUE, WITH A SENSE OF DIRECTION <span class="mini-cross">+</span></div>
-        <img src="/brand/hero-sculpture.webp" width="1328" height="1115" class="hero-sculpture" alt="A luminous lime ribbon rising through an open loop, a symbol of value moving through time" fetchpriority="high"/>
-        <div class="floating-label label-commit"><span class="small-icon"><LockKeyhole :size="15"/></span><div><span class="float-caption">THE COMMITMENT</span><strong>Set in motion.</strong></div><Check :size="15" class="lime-text"/></div>
-        <div class="floating-label label-flow"><span class="pulsing-ring"/><div><span class="float-caption">THE POSSIBILITY</span><strong>Always moving forward.</strong></div></div>
-        <div class="art-bottom-label"><span>01 — FUND</span><span class="dotted-line"/><span>02 — FLOW</span><span class="dotted-line"/><span>03 — GROW</span></div>
+      <div class="timeline-studio">
+        <div class="studio-heading">
+          <span><span class="status-dot" /> THE SCHEDULE STUDIO</span
+          ><span class="example-tag">INTERACTIVE EXAMPLE</span>
+        </div>
+        <div class="studio-title">
+          <div>
+            <p>{{ active.label }}</p>
+            <h2>10,000 <span>tokens</span></h2>
+          </div>
+          <div class="studio-icon">
+            <component :is="active.icon" :size="24" />
+          </div>
+        </div>
+        <div
+          class="studio-tabs"
+          role="tablist"
+          aria-label="Explore schedule modes"
+          @keydown="tabKey"
+        >
+          <button
+            v-for="product in products"
+            :key="product.id"
+            :id="`demo-tab-${product.id}`"
+            role="tab"
+            :aria-selected="activeMode === product.id"
+            :tabindex="activeMode === product.id ? 0 : -1"
+            aria-controls="studio-panel"
+            :class="{ active: activeMode === product.id }"
+            @click="activeMode = product.id"
+          >
+            {{ product.short }}
+          </button>
+        </div>
+        <div
+          id="studio-panel"
+          role="tabpanel"
+          :aria-labelledby="`demo-tab-${activeMode}`"
+        >
+          <div class="studio-chart">
+            <div class="chart-topline">
+              <span>UNLOCKED BALANCE</span><strong>{{ released }}%</strong>
+            </div>
+            <svg
+              viewBox="0 0 468 235"
+              role="img"
+              :aria-label="`${active.name} example: ${released}% unlocked at ${position}% of the timeline`"
+            >
+              <path
+                v-for="y in [49, 97, 145, 194]"
+                :key="y"
+                :d="`M32 ${y}H442`"
+                stroke="#dbe1eb"
+                stroke-dasharray="3 4"
+              />
+              <path
+                :d="`M32 194 L${chartPoints.replaceAll(' ', ' L')} L442 194 Z`"
+                fill="#e9eeff"
+              />
+              <polyline
+                :points="chartPoints"
+                fill="none"
+                stroke="#355dff"
+                stroke-width="3"
+                stroke-linejoin="round"
+              />
+              <line
+                :x1="32 + Number(position) * 4.1"
+                :x2="32 + Number(position) * 4.1"
+                y1="28"
+                y2="194"
+                stroke="#18202c"
+                stroke-dasharray="3 5"
+              />
+              <circle
+                :cx="32 + Number(position) * 4.1"
+                :cy="194 - released * 1.45"
+                r="6"
+                fill="#355dff"
+                stroke="white"
+                stroke-width="3"
+              />
+              <g fill="#697486" font-size="10" font-family="monospace">
+                <text x="32" y="220">START</text>
+                <text x="218" y="220">TIMELINE</text>
+                <text x="422" y="220">END</text>
+              </g>
+            </svg>
+          </div>
+          <label class="demo-slider-label" for="demo-time"
+            ><span>Move through time <MoveRight :size="13" /></span
+            ><strong
+              >{{ (released * 100).toLocaleString() }} tokens unlocked</strong
+            ></label
+          ><input
+            id="demo-time"
+            v-model="position"
+            type="range"
+            min="0"
+            max="100"
+            :aria-valuetext="`${position}% of timeline, ${released * 100} tokens unlocked`"
+          />
+          <div class="studio-bottom">
+            <span>Illustrative terms · no wallet needed</span
+            ><RouterLink :to="`/create?mode=${activeMode}`"
+              >Use this mode <ArrowUpRight :size="15"
+            /></RouterLink>
+          </div>
+        </div>
       </div>
-    </div>
-    <div class="hero-bottom container"><p>Less coordination.<br><strong>More conviction.</strong></p><div><span>04</span><p>ways to<br>move value</p></div><div><span>0</span><p>protocol fees<br>on testnet</p></div><div><span>100%</span><p>of the schedule<br>visible onchain</p></div><RouterLink to="/docs" class="hero-bottom-link">Get to know the protocol <ArrowUpRight :size="19"/></RouterLink></div>
-  </section>
-  <div class="principles-strip"><div class="container"><span><span class="small-star">✳</span> YOUR TOKENS. YOUR TIMELINE.</span><span>NO INTERMEDIARIES</span><span>NO MOVING GOALPOSTS</span><span>JUST THE COMMITMENT</span><span class="small-star">✳</span></div></div>
-  <section id="products" class="products-section section-space">
-    <div class="container">
-      <div class="section-heading"><div><p class="eyebrow"><span class="section-index">01 /</span> THE PROTOCOL</p><h2>Every promise has<br>its own <span class="serif-word">pace.</span></h2></div><p>One simple foundation. Four ways to put it to work.<br>Choose the rhythm that fits what you’re building.</p></div>
-      <div class="product-tabs" role="tablist" aria-label="Schedule types" @keydown="tabKey"><button v-for="product in products" :id="`tab-${product.id}`" :key="product.id" role="tab" :aria-selected="activeMode === product.id" :tabindex="activeMode === product.id ? 0 : -1" aria-controls="product-panel" :class="{ active: activeMode === product.id }" @click="activeMode = product.id"><component :is="product.icon" :size="19"/><span>{{ product.name }}</span><span class="tab-index">{{ product.index }}</span></button></div>
-      <template v-for="product in products" :key="product.id"><div v-if="activeMode === product.id" id="product-panel" class="product-detail" role="tabpanel" tabindex="0" :aria-labelledby="`tab-${product.id}`">
-        <div class="product-copy"><p class="eyebrow muted">{{ product.tag }}</p><h3>{{ product.title }}</h3><p>{{ product.description }}</p><RouterLink :to="`/create?mode=${product.id}`" class="button button-dark">Explore {{ product.name.toLowerCase() }} <ArrowUpRight :size="17"/></RouterLink><span class="product-bottom-note"><Check :size="14"/> Transparent terms from day one.</span></div>
-        <div class="product-illustration"><div class="schedule-mock"><div class="mock-top"><span class="mock-icon"><component :is="product.icon" :size="19"/></span><div><strong>{{ product.name }}</strong><span>YOUR NEXT CHAPTER</span></div><span class="mock-pill">Illustration</span></div><div class="mock-amount">100,000<span>tokens</span></div><FlowChart :mode="product.id"/><div class="mock-bottom"><span>{{ product.id === 'lock' ? 'One unlock date' : product.id === 'stream' ? 'Every second counts' : 'A clear path ahead' }}</span><span>Built for the long run <MoveUpRight :size="12"/></span></div></div><span class="product-art-note">{{ product.example }}</span></div>
-      </div></template>
-    </div>
-  </section>
-  <section id="how-it-works" class="how-section section-space"><div class="container"><div class="section-heading"><div><p class="eyebrow"><span class="section-index">02 /</span> FROM INTENT TO IMPACT</p><h2>A little setup.<br>A lot of <span class="serif-word">follow-through.</span></h2></div><RouterLink to="/docs" class="text-button dark-text">The complete field guide <ArrowUpRight :size="17"/></RouterLink></div><div class="steps-grid"><article><div class="step-top"><span>01</span><div class="step-drawing wallet-drawing"><div/><div/><Plus :size="17"/></div></div><h3>Make the connection.</h3><p>Bring your EVM wallet. Switch to Robinhood Chain Testnet and choose the token you want to put to work.</p></article><article><div class="step-top"><span>02</span><div class="step-drawing timeline-drawing"><i/><i/><i/><i/><i/></div></div><h3>Give it a timeline.</h3><p>Set the people, the amount and the rhythm. Preview every detail, approve the tokens, then fund your schedule.</p></article><article><div class="step-top"><span>03</span><div class="step-drawing grow-drawing"><ArrowUpRight :size="46"/></div></div><h3>Let the good things flow.</h3><p>Recipients claim as tokens unlock. Every schedule is readable onchain. No follow-up email required.</p></article></div></div></section>
-  <section class="trust-section"><div class="container trust-grid"><div class="trust-symbol"><BrandMark icon-only/><div class="trust-orbit"/><span class="orbit-point"/></div><div><p class="eyebrow">BUILT AROUND THE COMMITMENT</p><h2>Trust the terms.<br><span>Verify everything.</span></h2><p>Your timeline belongs to the contract. No admin wallet can rewrite it, upgrade its logic or withdraw the escrow.</p><div class="trust-checks"><span><Check :size="17"/> Non-upgradeable contracts</span><span><Check :size="17"/> Exact token accounting</span><span><Check :size="17"/> Onchain claim history</span><span><Check :size="17"/> Wallet-to-wallet ownership</span></div><RouterLink to="/docs#security" class="text-button">Understand the mechanics <ArrowUpRight :size="16"/></RouterLink><p class="trust-disclaimer">Testnet release. Independent audit pending. Use test tokens only.</p></div></div></section>
-  <section id="pricing" class="pricing-section section-space"><div class="container pricing-grid"><div><p class="eyebrow"><span class="section-index">03 /</span> ROOM TO EXPERIMENT</p><h2>Big ideas.<br><span class="serif-word">Small beginnings.</span></h2><p>Explore the whole protocol on testnet.<br>The only thing between you and your first schedule<br class="desktop-break"> is a little testnet gas.</p><a href="https://faucet.testnet.chain.robinhood.com" class="text-button dark-text" target="_blank" rel="noopener noreferrer">Get testnet ETH <ArrowUpRight :size="16"/></a></div><div class="pricing-card"><div class="pricing-title"><span>THE TESTNET EDITION</span><span class="badge">OPEN TO EVERYONE</span></div><div class="price">0 <span>protocol fees</span></div><p>All four schedule types. No subscription.</p><div class="price-divider"/><ul><li><Check :size="17"/> Create, claim and manage your schedules</li><li><Check :size="17"/> Batch up to 100 recipients</li><li><Check :size="17"/> Read every commitment onchain</li></ul><RouterLink to="/create" class="button button-dark full-width">Try your first schedule <ArrowUpRight :size="17"/></RouterLink><small>Network gas applies. Test tokens have no monetary value.</small></div></div></section>
-  <section id="faq" class="faq-section section-space"><div class="container faq-grid"><div><p class="eyebrow"><span class="section-index">04 /</span> A FEW THINGS TO KNOW</p><h2>Clear terms.<br><span class="serif-word">Clear answers.</span></h2><p>Good commitments start with<br>the right questions.</p></div><div class="faq-list"><details v-for="(faq, index) in faqs" :key="faq[0]"><summary><span class="faq-number">0{{ index + 1 }}</span>{{ faq[0] }}<Plus :size="18"/></summary><p>{{ faq[1] }}</p></details></div></div></section>
-  <section class="closing-section"><div class="container closing-inner"><p class="eyebrow">THE FUTURE DOESN’T BUILD ITSELF.</p><h2>Put your next chapter<br><span>in motion.</span></h2><RouterLink to="/create" class="button button-lime">Create a schedule <ArrowUpRight :size="18"/></RouterLink><div class="closing-line"><span/><BrandMark icon-only/><span/></div></div></section>
+    </section>
+    <section id="products" class="tools-section">
+      <div class="section-heading">
+        <div>
+          <p class="eyebrow">01 / CHOOSE YOUR FORMAT</p>
+          <h2>Four tools. Your timeline.</h2>
+        </div>
+        <span class="section-side-note"
+          >Built for different kinds of commitment.</span
+        >
+      </div>
+      <div class="tool-grid">
+        <RouterLink
+          v-for="(product, i) in products"
+          :key="product.id"
+          :to="`/create?mode=${product.id}`"
+          class="tool-card"
+          :class="product.color"
+          ><div class="tool-top">
+            <span class="tool-icon"
+              ><component :is="product.icon" :size="21" /></span
+            ><span class="tool-number">0{{ i + 1 }}</span>
+          </div>
+          <h3>{{ product.name }} <ArrowUpRight :size="17" /></h3>
+          <p>{{ product.description }}</p>
+          <span class="tool-tag">{{ product.tag }}</span></RouterLink
+        >
+      </div>
+    </section>
+    <LiveStats />
+    <section id="how-it-works" class="journey-section">
+      <div class="section-heading">
+        <div>
+          <p class="eyebrow">02 / FROM INTENT TO EXECUTION</p>
+          <h2>Set it up. See it through.</h2>
+        </div>
+        <RouterLink class="text-button" to="/docs#getting-started"
+          >The complete guide <ArrowUpRight :size="16"
+        /></RouterLink>
+      </div>
+      <div class="journey-grid">
+        <article>
+          <span class="journey-number">01</span>
+          <h3>Compose</h3>
+          <p>
+            Choose your token, recipients and release dates. Preview the exact
+            schedule before you commit.
+          </p>
+        </article>
+        <article>
+          <span class="journey-number">02</span>
+          <h3>Fund</h3>
+          <p>
+            Connect your wallet, approve the required allowance, then fund your
+            schedule with test tokens.
+          </p>
+        </article>
+        <article>
+          <span class="journey-number">03</span>
+          <h3>Follow</h3>
+          <p>
+            Track progress in your workspace. Share a public schedule link.
+            Claim tokens as they unlock.
+          </p>
+        </article>
+      </div>
+    </section>
+    <section class="rules-banner">
+      <div class="rules-art" aria-hidden="true">
+        <span /><span /><span /><i /><i /><i />
+      </div>
+      <div class="rules-copy">
+        <p class="eyebrow">THE TERMS STAY IN VIEW</p>
+        <h2>A timeline you can inspect.</h2>
+        <p>
+          No administrator withdrawal. No upgrade switch. The deployed contract
+          defines the rules, and every schedule can be read onchain.
+        </p>
+        <div class="rules-checks">
+          <span><Check :size="15" /> Exact token accounting</span
+          ><span><Check :size="15" /> Public schedule details</span>
+        </div>
+        <RouterLink to="/docs#security" class="text-button"
+          >Read the rules & limits <ArrowUpRight :size="16"
+        /></RouterLink>
+      </div>
+    </section>
+    <section id="faq" class="questions-section">
+      <div>
+        <p class="eyebrow">03 / BEFORE YOU BEGIN</p>
+        <h2>A few things<br />to know.</h2>
+        <p>Clear expectations.<br />From the first transaction.</p>
+      </div>
+      <div class="faq-list">
+        <details v-for="([q, a], i) in faqs" :key="q">
+          <summary>
+            <span class="faq-number">0{{ i + 1 }}</span
+            >{{ q }}<Plus :size="18" />
+          </summary>
+          <p>{{ a }}</p>
+        </details>
+      </div>
+    </section>
+    <section class="start-banner">
+      <div>
+        <span class="eyebrow">YOUR NEXT MOVE</span>
+        <h2>Put the plan in motion.</h2>
+        <p>Testnet only. Use test tokens. Independent audit pending.</p>
+      </div>
+      <RouterLink to="/create" class="button button-primary"
+        >Create a schedule <ArrowUpRight :size="18"
+      /></RouterLink>
+    </section>
+  </div>
 </template>

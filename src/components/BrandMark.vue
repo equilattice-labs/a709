@@ -1,7 +1,19 @@
 <script setup>
-import { brand } from '../config/brand'
-defineProps({ iconOnly: Boolean })
+import { brand } from "../config/brand";
+defineProps({ iconOnly: Boolean });
 </script>
 <template>
-  <span class="brand-lockup"><svg viewBox="0 0 72 64" fill="currentColor" aria-hidden="true"><path d="M7 17H21L33 42L45 17H59L39 58H25Z M49 7H64L60 15H45Z"/></svg><span v-if="!iconOnly">{{ brand.name.toLowerCase() }}<span class="brand-dot">.</span></span></span>
+  <span class="brand-lockup"
+    ><svg viewBox="0 0 48 48" fill="none" aria-hidden="true">
+      <path
+        d="M6 12H42M6 24H42M6 36H42"
+        stroke="currentColor"
+        stroke-width="3"
+      />
+      <path
+        d="M12 7H22V17H12ZM26 19H36V29H26ZM17 31H27V41H17Z"
+        fill="currentColor"
+      /></svg
+    ><span v-if="!iconOnly">{{ brand.name.toLowerCase() }}</span></span
+  >
 </template>
